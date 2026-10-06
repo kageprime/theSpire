@@ -1,0 +1,14 @@
+const LINES=["The Spire does not ask who you were.","Ren Calder. Porter. The weakest licensed body in the city.","He carried Bram Holt's pack into a rift that ate the whole party.","He walked out with a cracked seal, and a Ledger that would not close.","Others read their Ledger as a rank. Ren's writes to him. It bargains.","Floor One. The fallen are pressed into Hosts, and they wait below.","Hollow I. Cinder Hall. Go down."];
+const CH='#1c1b1f';const C=document.getElementById('c'),g=C.getContext('2d');g.imageSmoothingEnabled=false;
+const BONE='#d8d0bc',DIM='#5a5a60',EM='#d9772b';
+let cx=4.5,cy=4.5;
+const P=(x,y)=>[256+((x-cx)-(y-cy))*32,165+((x-cx)+(y-cy))*16];
+const sd=(x,y)=>{const a=(x-y),b=(x+y)/2,l=Math.hypot(a,b)||1;return[a/l,b/l]};
+const K={};let scene='boot',il=0,ti=0,t=0,shake=0,texts=[],R,H,M,CS,dead,zone,zt,bossOn,bossDone,endT;
+const MW=38,MH=50,NAMES=["Tam Orrel","Edda Voss","Wick","Marra Dunn","Corrin","Sul Hask"];
+const ZONES=[[8,10,13,13,'The Bone Alcove'],[14,14,20,18,'The Quiet Seal'],[26,11,34,20,'Depth II · The Pressing Floor'],[24,25,36,34,'Depth III · The Carapace'],[1,1,21,10,'Depth I · The Ash Hall']];
+const BRZ=[[2.7,2.7],[13.7,2.7],[19.3,2.7],[8.7,10.7],[14.7,14.7],[19.3,17.3],[26.7,11.7],[33.3,19.3],[24.7,25.7],[35.3,25.7],[24.7,33.3],[35.3,33.3]];
+const solid=(x,y)=>x<0||y<0||x>=MW||y>=MH||M[Math.floor(y)][Math.floor(x)]==1;
+const free=(x,y,r=.22)=>!(solid(x-r,y-r)||solid(x+r,y-r)||solid(x-r,y+r)||solid(x+r,y+r));
+addEventListener('keydown',e=>{if(e.repeat)return;const k=e.key.toLowerCase();K[k]=1;if([' ','arrowup','arrowdown'].includes(k))e.preventDefault();act(k)});
+addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);

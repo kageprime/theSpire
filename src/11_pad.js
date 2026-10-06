@@ -1,0 +1,2 @@
+function pollPad(){const gp=navigator.getGamepads&&navigator.getGamepads()[0];if(!gp){pad.x=pad.y=0;return}const ax=gp.axes[0]||0,ay=gp.axes[1]||0;pad.x=Math.abs(ax)>.3?ax:0;pad.y=Math.abs(ay)>.3?ay:0;
+ const m={2:'j',3:'k',0:' ',1:'shift',5:'shift',4:'e',8:'tab',9:'escape',12:'arrowup',13:'arrowdown',14:'arrowleft',15:'arrowright'};gp.buttons.forEach((b,i)=>{if(b.pressed&&!pad.b[i]&&m[i])act(m[i]);pad.b[i]=b.pressed;if(i==4)K.e=b.pressed})}
