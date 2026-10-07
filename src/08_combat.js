@@ -3,32 +3,32 @@ function tryAtk(k){const air=R.z>2;let s;
  if(k=='k')s=air?'plunge':'launcher';else if(air)s='air1';
  else s=R.st=='atk'&&CHAIN.includes(R.at.s)?CHAIN[(CHAIN.indexOf(R.at.s)+1)%3]:(R.cnt>0?CHAIN[R.cn%3]:'attack1');
  const n=near();if(n){R.f=[n.x-R.x,n.y-R.y];R.d=dirOf(R.f[0],R.f[1])}
- R.st='atk';R.t=0;R.at={s,t:0,h:{},pw:1};R.sp=1+Math.min(R.chain,8)*.03;
+ R.st='atk';R.t=0;R.at={s,t:0,h:{},pw:1};R.sp=1+Math.min(R.chain,8)*.03;fxSwing(s);
  if(s=='attack3'&&R.ash>=R.wc){R.ash-=R.wc;R.at.pw=1.6;say(R.x,R.y-.5,'CINDER WHEEL',1.4);emb(R.x,R.y,18,12,1.4)}else say(R.x,R.y-.3,NM[s],.7);
  if(CHAIN.includes(s))R.cn=CHAIN.indexOf(s)+1;R.dwin=s=='attack1'?R.dw:0;if(s=='plunge')R.vz=-380;sfx('swing');return 1}
 function sealDmg(h,d){if(h.st=='sl'){h.st='ap'}if(h.broken>0){killH(h);return 1}h.seal-=d;h.reg=0;h.fl=.12;if(h.seal<=0){h.seal=0;h.broken=2.5;if(h.st!='air'&&h.st!='brace'&&h.st!='stand'){h.st='broken';h.t=0}else if(h.k=='bra'){h.st='open';h.t=0;h.open=1.8}say(h.x,h.y,'SEAL BROKEN',1.4);sfx('crack')}return 0}
 function killH(h){if(h.boss&&--h.lives>0){h.seal=h.smax;h.broken=0;h.st='down';h.t=0;h.str=0;say(h.x,h.y,h.k=='bra'?'BRAM HOLDS':'THE CARAPACE HOLDS',2.2);shake=10;sfx('fin');return}
- R.rev=false;R.kills++;R.ash=Math.min(R.ac,R.ash+1);if(R.kh&&R.seal<R.max)R.seal++;sfx('fin');HS=.1;shake=8;CPX=(h.x-R.x)*4;CPY=(h.y-R.y)*4;emb(h.x,h.y,20,26,2.2);
- if(h.k=='bra'){h.st='yield';h.t=0;h.broken=14;h.seal=0;R.earned+=40;say(h.x,h.y-1,'BRAM KNEELS',3);say(h.x,h.y-1.5,'HOLD E: RITE OF PRESSING',5);HS=.2;return}
+ R.rev=false;R.kills++;R.ash=Math.min(R.ac,R.ash+1);if(R.kh&&R.seal<R.max)R.seal++;sfx('fin');HS=.1;shake=8;CPX=(h.x-R.x)*4;CPY=(h.y-R.y)*4;emb(h.x,h.y,20,26,2.2);deathblow(h);
+ if(h.k=='bra'){h.st='yield';h.t=0;h.broken=14;h.seal=0;R.earned+=40;say(h.x,h.y-1,'BRAM KNEELS',3);say(h.x,h.y-1.5,'HOLD E: RITE OF PRESSING',5);HS=.2;pushIn(1.1,1.2);talk('bramKneel',{fx:h.x,fy:h.y});return}
  H=H.filter(o=>o!=h);CP.push({x:h.x,y:h.y,k:h.k,d:h.d,t:0});R.earned+=h.boss?15:3;say(h.x,h.y,'FILED: '+h.n,2.4);
  if(h.boss){bossDone=1;M[24][29]=0;M[24][30]=0;M[34][29]=0;M[34][30]=0;say(30.5,33.5,'A SEAM OPENS BELOW.',3)}}
 function resolveBram(p){const h=H.find(o=>o.k=='bra');if(!h)return;H=H.filter(o=>o!=h);
  if(p){AL.push(newAlly(h.x,h.y,'bra','Bram Holt'));SV.bram=1;sv();R.pressed++;R.earned+=10;say(h.x,h.y-1,'PRESSED: BRAM HOLT',3.5);sfx('press');emb(h.x,h.y,20,40,2.5,1)}else{CP.push({x:h.x,y:h.y,k:'bra',d:h.d,t:0});say(h.x,h.y-1,'BRAM IS FILED.',3)}
- bramDone=1;CS[2].hid=0;say(30.5,45,'THE SHARD SURFACES.',3)}
+ bramDone=1;CS[2].hid=0;say(30.5,45,'THE SHARD SURFACES.',3);talk(p?'bramPressed':'bramFiled')}
 function doPress(h){if(h.k=='bra'){resolveBram(1);return}H=H.filter(o=>o!=h);R.ash-=2;R.pressed++;R.earned+=4;AL.push(newAlly(h.x,h.y,h.k,h.n));
  while(AL.filter(a=>a.k!='bra').length>SV.slots){const i=AL.findIndex(a=>a.k!='bra');say(AL[i].x,AL[i].y,'SCATTERS',1.4);AL.splice(i,1)}
  say(h.x,h.y-.8,'PRESSED: '+h.n,2.5);sfx('press');emb(h.x,h.y,20,30,2.2,1)}
-function hurt(u,sx,sy){if(R.inv>0||R.st=='dash'||dead)return;R.seal--;R.cracks++;R.chain=0;R.inv=.8;R.at=null;R.cn=0;shake=7;HS=.06;sfx('crack');say(R.x,R.y,'CRACK',1);emb(R.x,R.y,24,8,1.6,1);
+function hurt(u,sx,sy){if(R.inv>0||R.st=='dash'||dead)return;R.seal--;R.cracks++;R.chain=0;R.inv=.8;R.at=null;R.cn=0;shake=7;HS=.06;sfx('crack');fxHurt();say(R.x,R.y,'CRACK',1);emb(R.x,R.y,24,8,1.6,1);
  const dx=R.x-sx,dy=R.y-sy,l=Math.hypot(dx,dy)||1;mv(R,dx/l*.5,dy/l*.5);
  if(R.seal<=0){if(!R.rev){R.rev=true;R.seal=1;say(R.x,R.y-.4,'THE SEAL HOLDS',2)}else{dead=true;R.st='dead';R.t=0;t=0;SV.bank+=R.earned;sv();return}}
  R.st='stun';R.t=0;R.stun=u?.5:.35;R.sa=u?'hit_heavy':'hit'}
-function deflect(h){h.st='stag';h.t=0;h.tm=.9;sealDmg(h,3.5);R.chain++;R.ct=R.ctw;say(R.x,R.y-.5,'DEFLECT',1);sfx('deflect');shake=5;HS=.08;SPK.push({x:(R.x+h.x)/2,y:(R.y+h.y)/2,z:24,t:0});emb((R.x+h.x)/2,(R.y+h.y)/2,24,16,2.2);CPX=(R.x-h.x)*3;CPY=(R.y-h.y)*3}
+function deflect(h){h.st='stag';h.t=0;h.tm=.9;sealDmg(h,3.5);R.chain++;R.ct=R.ctw;const _pf=t-R.dt<.12;fxClash({x:R.x,y:R.y,z:0},_pf);if(_pf){R.ash=Math.min(R.ac,R.ash+.5);say(R.x,R.y-.6,'PERFECT',1)};say(R.x,R.y-.5,'DEFLECT',1);fxFlash(.35);sfx('deflect');shake=_pf?8:5;HS=.08;SPK.push({x:(R.x+h.x)/2,y:(R.y+h.y)/2,z:24,t:0});emb((R.x+h.x)/2,(R.y+h.y)/2,24,16,2.2);CPX=(R.x-h.x)*3;CPY=(R.y-h.y)*3}
 function shoot(h,A){const dx=R.x-h.x,dy=R.y-h.y,l=Math.hypot(dx,dy)||1;PR.push({x:h.x,y:h.y,vx:dx/l*5,vy:dy/l*5,u:A.u,t:0});sfx('swing')}
 function hostResolve(h){const A=HA[h.k][h.ty],d=Math.hypot(R.x-h.x,R.y-h.y);if(A.pr){shoot(h,A);return}
  let r=A.r;const quake=h.k=='bra'&&h.ty==1;if(quake)r=h.q?Math.min(3,1.6+h.q*.17):1.3;if(d>=r)return;
  if(A.u){if(R.z<8)hurt(quake&&!h.q?0:1,h.x,h.y);if(quake){shake=10;emb(h.x,h.y,4,26,2.6)}return}
  if(R.dwin>0&&R.st=='atk'&&R.at.s=='attack1'){deflect(h);return}hurt(0,h.x,h.y)}
-function hitHost(h,a,s,ux,uy){if(h.st=='kneel'||h.st=='yield')return;let dm=1.3*a.dm*R.at.pw*(1+R.chain*.1);
+function hitHost(h,a,s,ux,uy){if(h.st=='kneel'||h.st=='yield')return;fxImpact(h,ux||R.f[0],uy||R.f[1],s);let dm=1.3*a.dm*R.at.pw*(1+R.chain*.1);
  if(h.k=='bra'){const fx=R.x-h.x,fy=R.y-h.y,fl=Math.hypot(fx,fy)||1,front=(fx*h.fx+fy*h.fy)/fl>.25;
   if((h.st=='brace'||h.st=='stand')&&front){h.str=Math.min(8,h.str+(s=='attack2'?2:1));h.bf=.25;dm*=s=='attack2'?.6:.2;say(h.x,h.y-.8,s=='attack2'?'CROSSING FANGS':'BLOCKED',.8);sfx('deflect');emb(h.x,h.y,22,6,1.6);
    if(h.str>=8){h.str=0;dm=h.smax*(h.st=='stand'?.5:.3);h.st='open';h.t=0;h.open=1.8;say(h.x,h.y-1,'THE GUARD CRACKS',1.8);shake=9}}

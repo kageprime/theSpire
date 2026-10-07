@@ -11,11 +11,13 @@ const optItems=()=>[
  {t:'Volume',v:()=>'|'.repeat(Math.round(SV.vol*10))+'.'.repeat(10-Math.round(SV.vol*10)),l:d=>{SV.vol=Math.max(0,Math.min(1,Math.round((SV.vol+d*.1)*10)/10));if(MG)MG.gain.value=SV.vol;sv();sfx('mtick')}},
  {t:'Screen shake',v:()=>['off','half','full'][Math.round(SV.shk*2)],l:d=>{SV.shk=Math.max(0,Math.min(1,SV.shk+d*.5));sv();sfx('mtick')}},
  {t:'Plain readout',v:()=>SV.plain?'on':'off',l:()=>{SV.plain=SV.plain?0:1;sv();sfx('mtick')}},
- {t:'Touch controls',v:()=>['auto','on','off'][SV.touch],l:d=>{SV.touch=(SV.touch+d+3)%3;sv();sfx('mtick')}}]
+ {t:'Touch controls',v:()=>['auto','on','off'][SV.touch],l:d=>{SV.touch=(SV.touch+d+3)%3;sv();sfx('mtick')}},
+ {t:'Pixel fit',v:()=>SV.fit?'fill':'sharp',l:()=>{SV.fit^=1;sv();fitCanvas();sfx('mtick')}},
+ {t:'Voices',v:()=>['off','blips','speech'][SV.vox],l:d=>{SV.vox=(SV.vox+d+3)%3;hush();sv();sfx('mtick')}}]
  .concat(document.fullscreenEnabled?[{t:'Fullscreen',v:()=>document.fullscreenElement?'on':'off',l:toggleFS}]:[]).concat([{t:'Back',f:()=>closeOptions()}]);
 const titleItems=()=>[{t:'Descend',f:()=>startRun()},{t:'Options',f:()=>openOptions('title')}];
 const pauseItems=()=>[{t:'Resume',f:()=>resume()},{t:'Moves',f:()=>{scene='moves'}},{t:'Options',f:()=>openOptions('pause')},{t:'Abandon dive',f:()=>abandon()}];
-function toTitle(){reset();H=[];scene='title';tT=0;tStamped=0;mi=0;R.x=18.6;R.y=15.8;AL.forEach(a=>{a.x=R.x+.9;a.y=R.y-.3});cx=17.4;cy=15.9}
+function toTitle(){reset();pendOpen=0;H=[];scene='title';tT=0;tStamped=0;mi=0;R.x=18.6;R.y=15.8;AL.forEach(a=>{a.x=R.x+.9;a.y=R.y-.3});cx=17.4;cy=15.9}
 function startRun(){sfx('confirm');if(!SV.intro){scene='intro';il=0;ti=0;tT=0}else reset()}
 function openOptions(f){optFrom=f;scene='options';mi=0;sfx('confirm')}
 function closeOptions(){scene=optFrom;mi=0;sfx('back')}
@@ -32,6 +34,7 @@ function routeAct(k){
  if(scene=='title'){menuAct(k,titleItems(),null);return 1}
  if(scene=='options'){menuAct(k,optItems(),closeOptions);return 1}
  if(scene=='pause'){menuAct(k,pauseItems(),resume);return 1}
+ if(scene=='talk'){talkAct(k);return 1}
  if(scene=='moves'){if(['escape','enter',' ','shift','backspace','e'].includes(k)){scene='pause';mi=1;sfx('back')}return 1}
  if(scene=='intro'&&k=='escape'){SV.intro=1;sv();reset();return 1}
  if(scene=='play'&&!dead&&k=='escape'){pauseGame();return 1}
@@ -64,14 +67,14 @@ function drawMenuScene(){dimWorld();
   panel(250,36,226,156,'THIS DIVE',1);g.font='italic 12px '+FELL;g.fillStyle=BONE;g.fillText(zone||'Cinder Hall',260,66);g.font='10px '+MONO;
   [['TIME',Math.floor(R.time)+'s'],['CRACKS',R.cracks],['PRESSED',R.pressed],['ASH',Math.floor(R.ash)+' / '+R.ac],['WRITS',R.bg.length?R.bg.length+' signed':'none'],['BRAND',SV.brand?'marked':'clear']].forEach((r,i)=>{g.fillStyle='#9a9484';g.fillText(r[0],260,86+i*17);g.fillStyle=BONE;g.fillText(String(r[1]),360,86+i*17)});
   g.font='9px '+MONO;g.fillStyle=DIM;g.fillText('Abandoning banks the Ash you earned.',40,212)}}
-function renderIntro(){g.setTransform(1,0,0,1,0,0);g.fillStyle=CH;g.fillRect(0,0,512,320);drawPT();
+function renderIntro(){g.setTransform(SC,0,0,SC,0,0);g.fillStyle=CH;g.fillRect(0,0,512,320);drawPT();
  const bh=Math.round(40*Math.min(1,tT/1.2));g.fillStyle='#050406';g.fillRect(0,0,512,bh);g.fillRect(0,320-bh,512,bh);
  g.save();g.translate(256,112);const p=3.2+.12*Math.sin(t*2);g.scale(p,p);g.globalAlpha=.8;glyph(il>=3?-1.2:0,0);if(il>=3)glyph(1.2,0);g.restore();
  g.textAlign='center';if(il==0){g.fillStyle='#3a3a42';g.font='11px '+FELL;g.fillText('V E I L S P I R E',256,64)}
  const s=LINES[il].slice(0,Math.floor(ti));g.fillStyle=BONE;g.font='italic 15px '+FELL;g.fillText(s,256,204);
  g.fillStyle=DIM;g.font='10px '+FELL;g.fillText(il==LINES.length-1&&ti>=LINES[il].length?'press space to enter the Hollow':'space to continue   esc to skip',256,300);g.textAlign='left'}
 function render(){
- if(!booted){g.setTransform(1,0,0,1,0,0);g.fillStyle='#0e0d10';g.fillRect(0,0,512,320);g.fillStyle=DIM;g.font='11px Georgia';g.textAlign='center';g.fillText('reading the Ledger…',256,160);g.textAlign='left';return}
+ if(!booted){g.setTransform(SC,0,0,SC,0,0);g.fillStyle='#0e0d10';g.fillRect(0,0,512,320);g.fillStyle=DIM;g.font='11px Georgia';g.textAlign='center';g.fillText('reading the Ledger…',256,160);g.textAlign='left';return}
  if(scene=='intro'){renderIntro();return}
- HIDE=scene=='title'||(scene=='options'&&optFrom=='title')?1:0;renderPlay();HIDE=0;
- if(scene=='title')drawTitle();else if(scene=='options'||scene=='pause'||scene=='moves')drawMenuScene();else if(scene=='play')drawTouch()}
+ HIDE=scene=='title'||scene=='talk'||(scene=='options'&&optFrom=='title')?1:0;renderPlay();HIDE=0;
+ if(scene=='title')drawTitle();else if(scene=='options'||scene=='pause'||scene=='moves')drawMenuScene();else if(scene=='play')drawTouch();else if(scene=='talk')drawTalk()}

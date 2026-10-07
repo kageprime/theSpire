@@ -19,13 +19,13 @@ const kd=(k,sx,sy)=>{const m=KM[k];g.drawImage(KA,m[0],m[1],m[2],m[3],Math.round
 function fv(h,i,j){const r=h%20,pu=Math.sin(t*2+i+j*1.7)>0?1:0;if(h%11==0)return'f5';return r<8?'f0':r<12?'f1':r<14?'f2':r<15?'f6':r<17?'c'+pu:r<19?'c'+(2+pu):'f4'}
 function floor(){const i0=Math.floor(cx)-11,j0=Math.floor(cy)-11;
  for(let j=j0;j<j0+23;j++)for(let i=i0;i<i0+23;i++){if(i<0||j<0||i>=MW||j>=MH||M[j][i]==1||!vis(i,j))continue;
-  const[sx,sy]=P(i,j);kd(fv(hsh(i,j),i,j),sx,sy)}
- const[a,b]=P(16.5,15.5);g.drawImage(TS,0,120,96,48,Math.round(a-48),Math.round(b-24),96,48);
+  const[sx,sy]=P(i,j);kd(fv(hsh(i,j),i,j),sx,sy);aoTile(i,j,sx,sy)}
+ drawDecals();const[a,b]=P(16.5,15.5);g.drawImage(TS,0,120,96,48,Math.round(a-48),Math.round(b-24),96,48);
  floorText(4.5,4.9,'The Floor Voice sets the test:','DESCEND.')}
 function wallS(i,j){const[sx,sy]=P(i,j),h=hsh(i,j)%7,F=(a,b)=>{const y=j+b,x=i+a;return y>=0&&x>=0&&y<MH&&x<MW&&M[y][x]!=1},nm=['stoneWall','stoneWall','stoneWall','stoneWall','stoneWallAged','stoneWallAged','stoneWallBroken'][h];
  const n=F(0,1),w=F(1,0),s=F(0,-1),e=F(-1,0);
  if(n&&w&&s&&e){kd('col',sx,sy);return}
- if(s)kd('stoneWallHalf_S',sx,sy);if(e)kd('stoneWallHalf_E',sx,sy);if(n)kd(nm+'_N',sx,sy);if(w)kd(nm+'_W',sx,sy)}
+ if(s)kdw('stoneWallHalf_S',sx,sy,i,j);if(e)kdw('stoneWallHalf_E',sx,sy,i,j);if(n)kdw(nm+'_N',sx,sy,i,j);if(w)kdw(nm+'_W',sx,sy,i,j)}
 function fogS(i,j){const[sx,sy]=P(i,j);g.drawImage(TS,256+(Math.floor(t*3)%2)*64,32,64,56,Math.round(sx-32),Math.round(sy-24),64,56)}
 function brazier(x,y){const[sx,sy]=P(x,y);g.drawImage(TS,(Math.floor(t*9+x*3)%4)*24,88,24,32,Math.round(sx-12),Math.round(sy-30),24,32)}
 function chest(c){const[sx,sy]=P(c.x,c.y),m=KM[c.o?'chest1':'chest0'],w=Math.round(m[2]*1.5),h=Math.round(m[3]*1.5);shadow(Math.round(sx),Math.round(sy),10);g.drawImage(KA,m[0],m[1],m[2],m[3],Math.round(sx-w/2),Math.round(sy+4-h),w,h)}

@@ -5,6 +5,6 @@ const BGS=[{id:'ink',n:'QUICKENED INK',g:'Chain window +50%',p:'Take a crack now
 {id:'veins',n:'EMBER VEINS',g:'+3 Ash now, Ash cap 7',p:'Seal holds 3 cracks',on(){R.ac=7;R.ash=Math.min(7,R.ash+3);R.max=3;R.seal=Math.min(R.seal,3)}},
 {id:'iron',n:'IRON MARGIN',g:'Deflect window +50%',p:'Cinder Wheel costs 3 Ash',on(){R.dw=.45;R.wc=3}},
 {id:'page',n:'HUNGRY PAGE',g:'Kills restore a crack',p:'Hosts hold 25% more seal',on(){R.kh=1;R.hm=1.25;H.forEach(h=>{h.smax*=1.25;h.seal*=1.25})}}];
-let SV={bank:0,brand:0,slots:1,bram:0,veins:0,plain:0,intro:0,vol:.8,shk:1,touch:0};try{Object.assign(SV,JSON.parse(localStorage.getItem('vsp_save')||'{}'))}catch(e){}
+let SV={bank:0,brand:0,slots:1,bram:0,veins:0,plain:0,intro:0,vol:.8,shk:1,touch:0,vox:1,fit:0,fcd:0,tk:{}};try{Object.assign(SV,JSON.parse(localStorage.getItem('vsp_save')||'{}'))}catch(e){}
 const sv=()=>{try{localStorage.setItem('vsp_save',JSON.stringify(SV))}catch(e){}};
 let PT=[],PR=[],AL=[],ILL=[],leverDone=0,showLed=0,ledA=0,fade=0,CPX=0,CPY=0,bramOn=0,bramDone=0,locT=0,locP=[];const pad={x:0,y:0,b:[]},LEV=[26.5,5.5];

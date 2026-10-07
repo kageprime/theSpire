@@ -1,3 +1,4 @@
+let PNL=null;
 /* ---- sprites ---- */
 function hostSpr(h){const A=HA[h.k],hh=h.k=='bra'?60:h.boss?84:56;let an='idle',fr=Math.floor(t*6)%6;
  if(h.st=='sl'||h.st=='kneel'||h.st=='yield'){an='knockdown';fr=5}else if(h.st=='getup'){an='getup';fr=fi(h.t,8)}else if(h.st=='down'){an='knockdown';fr=fi(h.t,10)}
@@ -52,7 +53,7 @@ function holoLayer(){
  if(R.pt&&R.st=='free'){const h=R.pt,ok=h.k=='bra'||R.ash>=2;const[hx,hy]=P(h.x,h.y);tag(h.x,h.y,ok?'HOLD E : RITE OF PRESSING':'THE RITE NEEDS 2 ASH',h.k=='bra'?'CLAIM BRAM HOLT':h.n,52);
   if(R.press>0){g.strokeStyle=BONE;g.lineWidth=2;g.beginPath();g.arc(hx,hy-30,16,-1.57,-1.57+6.283*R.press);g.stroke();g.lineWidth=1}}
  /* prompts */
- if(Math.hypot(R.x-16.5,R.y-15.5)<1.9)tag(16.5,15.5,'E : REST AT THE SEAL','THE LEDGER WILL OFFER WRITS',10);
+ if(!R.panel&&!H.some(h=>!['kneel','yield','sl','dead'].includes(h.st))&&Math.hypot(R.x-16.5,R.y-15.5)<1.9)tag(16.5,15.5,'E : REST AT THE SEAL','THE LEDGER WILL OFFER WRITS',10);
  if(!leverDone&&Math.hypot(R.x-LEV[0],R.y-LEV[1])<1.9)tag(LEV[0],LEV[1],'E : PULL THE BAR','SOMETHING SLIDES BEYOND',10);
  CS.forEach(c=>{if(!c.o&&!c.hid&&Math.hypot(R.x-c.x,R.y-c.y)<1.6)tag(c.x,c.y,'E : TAKE '+c.s.toUpperCase(),'',14)});
  H.forEach(h=>{if(h.st=='kneel'&&Math.hypot(h.x-R.x,h.y-R.y)<2.6)tag(h.x,h.y,'1 SPARE   2 PRESS   3 BREAK',h.n+' KNEELS. YIELDING.',40)});
@@ -65,37 +66,36 @@ function holoLayer(){
  if(showLed){const o=objective();if(t-locT>.25){locT=t;locP=o?bfs(o[0],o[1]):[]}
   let dist=0,px=R.x,py=R.y;g.fillStyle=BONE;locP.forEach((p,i)=>{dist+=Math.hypot(p[0]-px,p[1]-py);px=p[0];py=p[1];if(i%2==0&&i<28){const[sx,sy]=P(p[0],p[1]);g.globalAlpha=.35+.5*Math.max(0,Math.sin(t*5-i*.7));g.fillRect(Math.round(sx)-1,Math.round(sy)-1,3,3)}});g.globalAlpha=1;
   if(locP.length){const e=locP[Math.min(locP.length-1,27)],[sx,sy]=P(e[0],e[1]);g.font='9px '+MONO;g.fillText('OBJECTIVE  '+Math.round(dist)+'m',Math.round(sx)+6,Math.round(sy)-6)}}
- if(ledA>.02){const w=Math.round(176*ledA),x=rx+34,y=ry-132;panel(x,y,Math.max(40,w),128,'THE LEDGER',ledA);g.save();g.globalAlpha=ledA;g.font='9px '+MONO;g.fillStyle=BONE;
+ if(ledA>.02&&!R.panel&&!H.some(h=>!['kneel','yield','sl','dead'].includes(h.st))){const w=Math.round(176*ledA),x=rx+34,y=ry-132;panel(x,y,Math.max(40,w),128,'THE LEDGER',ledA);g.save();g.globalAlpha=ledA;g.font='9px '+MONO;g.fillStyle=BONE;
   const L=['SEAL     '+'o'.repeat(R.seal)+'.'.repeat(Math.max(0,R.max-R.seal)),'CHAIN    x'+R.chain,'HOSTS    '+AL.length+' pressed / '+SV.slots+' slots','WRITS    '+(R.bg.length?R.bg.map(b=>BGS.find(q=>q.id==b).n.split(' ')[0]).join(' '):'none'),'BRAND    '+(SV.brand?'marked':'clear'),'BANK     '+SV.bank+' ash','','TAB close   P plain readout'];
   L.forEach((s,i)=>{if(w>150)g.fillText(s,x+9,y+33+i*11)});if(w>150){g.fillStyle=EM;g.fillText(String(Math.floor(R.ash))+' / '+R.ac+' ASH',x+88,y+33+11*1+0);}g.restore()}
- /* bargain panel at the seal */
- if(R.panel&&R.offer){const[sx,sy]=P(16.5,15.5);const x=Math.round(sx)+30,y=Math.round(sy)-150;panel(x,y,214,112,'THE LEDGER OFFERS',1);g.font='9px '+MONO;
-  if(!R.offer.length||R.bg.length>=3){g.fillStyle=BONE;g.fillText(R.bg.length>=3?'THREE WRITS ARE ALREADY SIGNED.':'NOTHING MORE TO SIGN.',x+9,y+36)}
-  else R.offer.forEach((b,i)=>{const yy=y+32+i*26;g.fillStyle=BONE;g.fillText((i+1)+'  '+b.n,x+9,yy);g.fillStyle='#9a9484';g.fillText('+ '+b.g,x+22,yy+10);g.fillText('- '+b.p,x+22,yy+19)})}}
+ /* bargain panel at the seal: beside Ren, never over the rest prompt or Ren's head */
+ PNL=null;if(R.panel&&R.offer){const[sx,sy]=P(16.5,15.5),n=R.offer.length&&R.bg.length<3?R.offer.length:1,h=46+n*32,x=Math.round(sx)+36,y=Math.max(6,Math.min(320-h-6,Math.round(sy)-Math.round(h/2)-34));PNL={x,y,h};panel(x,y,214,h,'THE LEDGER OFFERS',1);g.font='9px '+MONO;
+  if(!R.offer.length||R.bg.length>=3){g.fillStyle=BONE;g.fillText(R.bg.length>=3?'THREE WRITS ARE ALREADY SIGNED.':'NOTHING MORE TO SIGN.',x+9,y+38)}
+  else R.offer.forEach((b,i)=>{const yy=y+38+i*32;g.fillStyle=BONE;g.fillText((i+1)+'  '+b.n,x+9,yy);g.fillStyle='#9a9484';g.fillText('+ '+b.g,x+22,yy+11);g.fillText('- '+b.p,x+22,yy+21)})}}
 function plainHud(){g.fillStyle='rgba(14,16,20,.7)';g.fillRect(6,6,150,44);g.fillStyle=BONE;g.font='10px '+MONO;g.fillText('SEAL '+'o'.repeat(R.seal)+'.'.repeat(Math.max(0,R.max-R.seal)),12,20);g.fillText('ASH  '+Math.floor(R.ash)+'/'+R.ac+'  CHAIN x'+R.chain,12,32);const b=H.find(h=>h.boss&&h.st!='yield');if(b)g.fillText(b.n.toUpperCase().slice(0,12)+' '+Math.max(0,Math.round(b.seal))+'/'+Math.round(b.smax),12,44)}
-function renderPlay(){g.setTransform(1,0,0,1,0,0);g.fillStyle='#0e0d10';g.fillRect(0,0,512,320);
+function renderPlay(){g.setTransform(SC,0,0,SC,0,0);g.fillStyle='#0e0d10';g.fillRect(0,0,512,320);
  if(!READY){g.fillStyle=DIM;g.font='11px Fell,Georgia';g.textAlign='center';g.fillText('reading the Ledger…',256,160);g.textAlign='left';return}
  if(scene=='intro'){g.fillStyle=CH;g.fillRect(0,0,512,320);g.textAlign='center';if(il==0){g.fillStyle='#2a2a30';g.font='11px Fell,Georgia';g.fillText('V E I L S P I R E',256,40)}
   g.fillStyle=BONE;g.font='italic 17px Fell,Georgia';const s=LINES[il].slice(0,Math.floor(ti));g.fillText(s,256,160);g.fillStyle=DIM;g.font='11px Fell,Georgia';g.fillText(il==LINES.length-1&&ti>=s.length?'press space to enter the Hollow':'space to continue',256,290);g.textAlign='left';return}
  const ox=Math.round((Math.random()-.5)*shake*SV.shk+CPX*.3*SV.shk),oy=Math.round((Math.random()-.5)*shake*SV.shk+CPY*.3*SV.shk);CPX*=.82;CPY*=.82;
- g.save();g.translate(ox,oy);floor();floorText(16.5,21.6,'The Floor Voice sets the test:','SPARE WHAT YIELDS.');
+ drawBackdrop(ox,oy);g.save();g.translate(ox,oy);g.translate(256,165);g.scale(ZM,ZM);g.translate(-256,-165);floor();floorText(16.5,21.6,'The Floor Voice sets the test:','SPARE WHAT YIELDS.');
  const E=[],i0=Math.floor(cx)-11,j0=Math.floor(cy)-11;
  for(let j=j0;j<j0+23;j++)for(let i=i0;i<i0+23;i++){if(i<0||j<0||i>=MW||j>=MH||!vis(i,j))continue;
   if(M[j][i]==3)E.push({d:i+j+1,f:()=>fogS(i,j)});
   else if(M[j][i]==1){let n=0;for(let a=-1;a<2;a++)for(let b=-1;b<2;b++){const y=j+b,x=i+a;if(y>=0&&x>=0&&y<MH&&x<MW&&M[y][x]!=1)n=1}if(n)E.push({d:i+j+1,f:()=>wallS(i,j)})}}
  BRZ.forEach(b=>{if(Math.abs(b[0]-cx)<12&&Math.abs(b[1]-cy)<12)E.push({d:b[0]+b[1],f:()=>brazier(b[0],b[1])})});
- CS.forEach(c=>{if(!c.hid)E.push({d:c.x+c.y,f:()=>chest(c)})});CP.forEach(c=>E.push({d:c.x+c.y-.2,f:()=>drawCorpse(c)}));
+ PROPS.forEach(p=>{if(Math.abs(p.x-cx)<12&&Math.abs(p.y-cy)<12)E.push({d:p.d||p.x+p.y,f:()=>drawProp(p)})});ENVP.forEach(p=>{if(Math.abs(p.x-cx)<12&&Math.abs(p.y-cy)<12)E.push({d:p.d,f:()=>drawEnv(p)})});CS.forEach(c=>{if(!c.hid)E.push({d:c.x+c.y,f:()=>chest(c)})});CP.forEach(c=>E.push({d:c.x+c.y-.2,f:()=>drawCorpse(c)}));
  E.push({d:R.x+R.y,f:drawRen});H.forEach(h=>E.push({d:h.x+h.y,f:()=>drawHost(h)}));AL.forEach(a=>E.push({d:a.x+a.y,f:()=>drawAlly(a)}));
  E.sort((a,b)=>a.d-b.d).forEach(e=>e.f());drawSpk();g.restore();
- const dk=g.createRadialGradient(256,150,50,256,150,240);dk.addColorStop(0,'rgba(8,7,10,0)');dk.addColorStop(1,'rgba(8,7,10,.95)');g.fillStyle=dk;g.fillRect(0,0,512,320);
- g.globalCompositeOperation='lighter';BRZ.concat([[16.5,15.5]]).forEach(b=>{const[sx,sy]=P(b[0],b[1]);if(sx<-80||sx>590||sy<-80||sy>400)return;const r=g.createRadialGradient(sx,sy-10,2,sx,sy-10,70);r.addColorStop(0,'rgba(217,119,43,.22)');r.addColorStop(1,'rgba(217,119,43,0)');g.fillStyle=r;g.fillRect(sx-70,sy-80,140,140)});g.globalCompositeOperation='source-over';
- g.save();g.translate(ox,oy);if(HIDE){g.globalCompositeOperation='lighter';drawPT();g.globalCompositeOperation='source-over'}else holoLayer();g.restore();
+ lightPass(ox,oy);
+ g.save();g.translate(ox,oy);g.translate(256,165);g.scale(ZM,ZM);g.translate(-256,-165);if(HIDE){g.globalCompositeOperation='lighter';drawPT();g.globalCompositeOperation='source-over'}else holoLayer();g.restore();postPass();
  if(fade>0){g.fillStyle='rgba(8,7,10,'+Math.min(1,fade)+')';g.fillRect(0,0,512,320)}
  if(zt>0&&scene=='play'){g.globalAlpha=Math.min(1,zt);g.fillStyle=BONE;g.font='italic 20px Fell,Georgia';g.textAlign='center';g.fillText(zone,256,288);g.textAlign='left';g.globalAlpha=1}
  if(SV.plain&&!HIDE)plainHud();
- if(!HIDE&&scene=='play'&&!TOUCHON()){g.fillStyle=DIM;g.font='9px Fell,Georgia';g.fillText('WASD move  J J J chain  K launch/plunge  Space jump  Shift veil  E use / hold: Rite  Tab Ledger  P plain  Esc pause',8,314)}
+ if(!HIDE&&scene=='play'&&!TOUCHON()){g.fillStyle=DIM;g.font='9px Fell,Georgia';g.fillText('WASD move  J J J chain  K plunge  U crescent  I entry  Space jump  Shift veil  E use / hold: Rite  Tab Ledger  P plain  Esc pause',8,314)}
  const ov=(l,s,shop)=>{g.fillStyle='rgba(18,17,20,.88)';g.fillRect(0,0,512,320);g.textAlign='center';g.fillStyle=BONE;g.font='italic 22px Fell,Georgia';g.fillText(l[0],256,70);g.font='13px Fell,Georgia';l.slice(1).forEach((q,i)=>g.fillText(q,256,98+i*18));
   g.font='11px '+MONO;g.fillStyle=EM;g.fillText('ASH IN THE BANK: '+SV.bank,256,206);g.fillStyle=BONE;g.fillText('[1] Host slot +1 (40)   have '+SV.slots+'/3',256,222);g.fillText('[2] Ember Veins: start with +1 Ash (25)   have '+SV.veins+'/3',256,236);if(SV.brand)g.fillText('[3] Scour the brand (20)',256,250);
   g.fillStyle=DIM;g.font='11px Fell,Georgia';g.fillText(s,256,290);g.textAlign='left'};
  if(dead&&t>1.2)ov(['The seal scatters.','Ren Calder is filed as Ash. Ash is kept.','Banked from this run: '+R.earned],'press R to walk in again');
- if(scene=='end'&&R.verdict)ov(R.verdict,'press R to dive again')}
+ if(scene=='end'&&R.verdict)ov(R.verdict,'press R to dive again');drawWipe()}

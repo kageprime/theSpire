@@ -1,7 +1,7 @@
 const LINES=["The Spire does not ask who you were.","Ren Calder. Porter. The weakest licensed body in the city.","He carried Bram Holt's pack into a rift that ate the whole party.","He walked out with a cracked seal, and a Ledger that would not close.","Others read their Ledger as a rank. Ren's writes to him. It bargains.","Floor One. The fallen are pressed into Hosts, and they wait below.","Hollow I. Cinder Hall. Go down."];
 const CH='#1c1b1f';const C=document.getElementById('c'),g=C.getContext('2d');g.imageSmoothingEnabled=false;
 const BONE='#d8d0bc',DIM='#5a5a60',EM='#d9772b';
-let cx=4.5,cy=4.5;
+let cx=4.5,cy=4.5,SC=1;
 const P=(x,y)=>[256+((x-cx)-(y-cy))*32,165+((x-cx)+(y-cy))*16];
 const sd=(x,y)=>{const a=(x-y),b=(x+y)/2,l=Math.hypot(a,b)||1;return[a/l,b/l]};
 const K={};let scene='boot',il=0,ti=0,t=0,shake=0,texts=[],R,H,M,CS,dead,zone,zt,bossOn,bossDone,endT;

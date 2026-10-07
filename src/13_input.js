@@ -10,12 +10,13 @@ const cpos=e=>{const r=C.getBoundingClientRect();return[(e.clientX-r.left)/r.wid
 function touchDown(id,x,y){const b=btns().find(o=>Math.hypot(x-o.x,y-o.y)<=o.r+6);
  if(b){TP[id]={b};if(b.k=='e')K.e=1;act(b.k);return}
  if(kneelNear()){const c=KB.find(o=>Math.abs(x-o.x)<36&&Math.abs(y-44)<16);if(c){act(c.k);return}}
- if(R.panel&&R.offer){const i=Math.floor((y-34)/26);if(x>=290&&x<=504&&i>=0&&i<R.offer.length){act(String(i+1));return}}
+ if(R.panel&&R.offer&&PNL){const i=Math.floor((y-(PNL.y+27))/32);if(x>=PNL.x&&x<=PNL.x+214&&i>=0&&i<R.offer.length){act(String(i+1));return}}
  if(x<300&&y>90)TP[id]={s:1,ox:x,oy:y,kx:0,ky:0}}
 C.addEventListener('pointerdown',e=>{e.preventDefault();aud();C.focus();if(e.pointerType=='touch')usedTouch=1;const[x,y]=cpos(e);
  try{C.setPointerCapture(e.pointerId)}catch(_){}
  if(!booted)return;
  if(scene=='intro'){act(' ');return}
+ if(scene=='talk'){talkTap(x,y);return}
  if(scene=='title'||scene=='pause'||scene=='options'||scene=='moves'){menuTap(x,y);return}
  if(scene=='end'||dead){act(y>=214&&y<228?'1':y>=228&&y<242?'2':y>=242&&y<256?'3':'r');return}
  if(scene=='play'&&TOUCHON())touchDown(e.pointerId,x,y)});

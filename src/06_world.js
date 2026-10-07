@@ -17,6 +17,6 @@ function reset(){build();R={x:4.5,y:4.5,z:0,vz:0,f:[1,0],d:1,seal:4,max:4,rev:fa
  const L=[[15.5,3.5,'cin'],[18.5,7.5,'spe'],[9.5,11.5,'dag'],[28.5,13.5,'cin'],[32.5,13.5,'spe'],[30.5,18.5,'cas'],[27.5,17.5,'dag'],[28.5,8.5,'dag'],[25.5,6,'cas']];
  H=L.map((p,i)=>mkH(p[0],p[1],NAMES[i%NAMES.length],p[2]));const e=mkH(16.5,20.5,'Edda Voss','cin');e.st='kneel';H.push(e);
  CS=[{x:11.5,y:11.5,s:'a bone fragment',ash:3,o:0,amb:1},{x:4.5,y:9.5,s:'a hidden writ',ash:4,o:0,off:1},{x:30.5,y:46.5,s:'the Ember Shard',ash:5,o:0,hid:1,fin:1}];
- dead=false;CP=[];SPK=[];PT=[];PR=[];AL=[];HS=0;texts=[];zone='';zt=0;bossOn=0;bossDone=0;bramOn=0;bramDone=0;leverDone=0;endT=0;scene='play';t=0;cx=R.x;cy=R.y;showLed=0;fade=1;
+ dead=false;CP=[];SPK=[];PT=[];PR=[];AL=[];HS=0;texts=[];zone='';zt=0;bossOn=0;bossDone=0;bramOn=0;bramDone=0;leverDone=0;endT=0;scene='play';t=0;cx=R.x;cy=R.y;showLed=0;fade=1;resetFX();resetArts();
  if(SV.bram)AL.push(newAlly(3.5,4.5,'bra','Bram Holt'))}
 function near(){let b=null,bd=3.2;H.forEach(h=>{if(h.st=='sl'||h.st=='kneel'||h.st=='yield')return;const d=Math.hypot(h.x-R.x,h.y-R.y);if(d<bd){bd=d;b=h}});return b}
